@@ -1,17 +1,20 @@
-import sqlite3
+from options import reserve
 
-con = sqlite3.connect('viesnica.db')
+print("""Welcome to the menu!      
+Please choose an option: 
 
-cur = con.cursor()
+1.Reserve
+2.Update info
+3.Get info
+""")
+
+izvele = int(input())
+if izvele == 1:
+    reserve()
 
 
-cur.execute("""   
-        INSERT INTO Students VALUES(9,"123456-88902","TPK21");
-         """)
 
-con.commit()
 
-con.close()
 
 
 
