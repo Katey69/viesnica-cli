@@ -18,6 +18,7 @@ elif izvele == 3:
     1.Viesis info
     2.Stay info
     3.Room info
+    4.Students info
     """)
     izvele = int(input())
     get_info(izvele)
