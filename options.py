@@ -6,23 +6,62 @@ def reserve():
     with connection as con:
         cur = con.cursor()
         cur.execute("SELECT * FROM Istaba")
+
         visas_istabas = dictfetchall(cur)
     con.close()
-    print("Thank you for reserving!")
-    print(visas_istabas)
+
+    print("--------------------------------------------")
+    print("| numurs | izmers | is_luxury | kapacitate |")
+    print("--------------------------------------------")
+    for istaba in visas_istabas:
+        print("|", istaba["numurs"], "|", istaba["izmers"], "|", istaba["is_luxury"], "|",
+              istaba["kapacitate"])
+
+
 
 
 def get_info(izvele):
     if izvele == 1:
-        table_name = "Viesis"
-        visi_viesi = get_all_data(table_name)
+        print("""      
+        Please choose which info: 
+
+        1.All guests
+        2.By nosaukums
+        
+        """)
+        izvele1 = int(input())
+        if izvele1 == 1:
+
+            table_name = "Viesis"
+            visi_viesi = get_all_data(table_name)
 
 
-        print("----------------------------------------")
-        print("| vards | uzvards | tel_nr| studentsID |")
-        print("----------------------------------------")
-        for viesi in visi_viesi:
-            print("|", viesi["vards"], "|", viesi["uzvards"], "|", viesi["tel_nr"], "|", viesi["studentsID"])
+            print("----------------------------------------")
+            print("| vards | uzvards | tel_nr| studentsID |")
+            print("----------------------------------------")
+            for viesi in visi_viesi:
+                print("|", viesi["vards"], "|", viesi["uzvards"], "|", viesi["tel_nr"], "|", viesi["studentsID"])
+        else:
+            print("Please write name:")
+            nosaukums = input()
+            table_name = "Viesis"
+            with connection as con:
+                cur = con.cursor()
+                cur.execute("SELECT Viesis.vards, Viesis.uzvards, Viesis.tel_nr, Viesis.studentsID, Students.pers_kods, Students.kurss FROM {name} LEFT JOIN Students ON Students.id = Viesis.studentsID WHERE vards = '{nosaukums}' ".format(name=table_name, nosaukums=nosaukums))
+                result = dictfetchall(cur)
+            con.close()
+            print("------------------------------------------------------------")
+            print("| vards | uzvards | tel_nr| studentsID | pers_kods | kurss |")
+            print("------------------------------------------------------------")
+
+            if len(result) == 0:
+                print("No data")
+            else:
+                viesi = result[0]
+                print("|", viesi["vards"], "|", viesi["uzvards"], "|", viesi["tel_nr"], "|", viesi["studentsID"], "|", viesi["pers_kods"], "|", viesi["kurss"])
+
+
+
     elif izvele == 2:
         table_name = "Uzturesanas"
         visas_uzturesanas = get_all_data(table_name)
@@ -88,6 +127,8 @@ def get_room_info(izvele1):
         for istaba in visas_istabas:
             print("|", istaba["numurs"], "|", istaba["izmers"], "|", istaba["is_luxury"], "|",
                   istaba["kapacitate"])
+
+
 
 
 def get_all_data(table_name):
