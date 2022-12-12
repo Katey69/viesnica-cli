@@ -5,18 +5,49 @@ connection = sqlite3.connect('viesnica.db')
 def reserve():
     with connection as con:
         cur = con.cursor()
-        cur.execute("SELECT * FROM Istaba")
+        cur.execute("SELECT DISTINCT(Istaba.numurs), Istaba.izmers, Istaba.is_luxury, Istaba.kapacitate FROM istaba LEFT JOIN Uzturesanas ON Istaba.id = Uzturesanas.istaba WHERE datetime() NOT BETWEEN Uzturesanas.izrakstisanas_laiks AND Uzturesanas.ierakstisanas_laiks OR Uzturesanas.istaba IS NULL")
+        brivas_istabas = dictfetchall(cur)
 
-        visas_istabas = dictfetchall(cur)
-    con.close()
 
     print("--------------------------------------------")
-    print("| numurs | izmers | is_luxury | kapacitate |")
+    print("| id | numurs | izmers | is_luxury | kapacitate |")
     print("--------------------------------------------")
-    for istaba in visas_istabas:
-        print("|", istaba["numurs"], "|", istaba["izmers"], "|", istaba["is_luxury"], "|",
-              istaba["kapacitate"])
+    if len(brivas_istabas) == 0:
+        print("No data")
 
+    else:
+
+        for istaba in brivas_istabas:
+            print( "|", istaba["id"], "|", istaba["numurs"], "|", istaba["izmers"], "|", istaba["is_luxury"], "|",
+                  istaba["kapacitate"], "|")
+        print("Please enter guest info")
+        name = input('Name:')
+        last_name = input('Last name:')
+        number = input('Number:')
+        istaba = input('Istaba:')
+        print("Student? y/n")
+        student = input()
+        if student == 'y':
+            pers_kods = input('pers_kods:')
+            kurss = input('Kurss:')
+            cur.execute("INSERT INTO Students(pers_kods, kurss) VALUES (?,?)", (pers_kods, kurss))
+            studentsID = cur.lastrowid
+            con.commit()
+
+        else:
+            studentsID = None
+        cur.execute("INSERT INTO Viesis(vards, uzvards, tel_nr, studentsID) VALUES (?,?,?,?)", (name, last_name, number, studentsID))
+        viesis = cur.lastrowid
+        con.commit()
+
+
+
+        start_date = input('Start date:')
+        end_date = input('End date:')
+        cur.execute("INSERT INTO Uzturesanas(ierakstisanas_laiks, izrakstisanas_laiks, istaba, viesis) VALUES (?,?,?,?)", (start_date, end_date, istaba, viesis))
+
+        con.commit()
+        print('Data entered successfully.')
 
 
 
