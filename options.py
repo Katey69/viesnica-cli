@@ -6,7 +6,7 @@ def reserve():
     with connection as con:
         cur = con.cursor()
         #cur.execute("SELECT DISTINCT(Istaba.numurs), Istaba.izmers, Istaba.id, Istaba.is_luxury, Istaba.kapacitate FROM istaba LEFT JOIN Uzturesanas ON Istaba.id = Uzturesanas.istaba WHERE datetime() NOT BETWEEN Uzturesanas.ierakstisanas_laiks AND Uzturesanas.izrakstisanas_laiks OR Uzturesanas.istaba IS NULL")
-        cur.execute("SELECT * FROM Istaba WHERE Istaba.id NOT IN (SELECT Uzturesanas.istaba FROM Uzturesanas WHERE datetime() BETWEEN Uzturesanas.ierakstisanas_laiks AND Uzturesanas.izrakstisanas_laiks);")
+        cur.execute("SELECT * FROM Istaba WHERE Istaba.id NOT IN (SELECT Uzturesanas.istaba FROM Uzturesanas WHERE datetime('now', 'localtime') BETWEEN Uzturesanas.ierakstisanas_laiks AND Uzturesanas.izrakstisanas_laiks);")
         brivas_istabas = dictfetchall(cur)
 
 
@@ -219,9 +219,9 @@ def update_info(izvele):
         table_name = "Uzturesanas"
         visas_uzturesanas = get_all_data(table_name)
         connection = sqlite3.connect('viesnica.db')
-        print("---------------------------------------------------------------")
+        print("--------------------------------------------------------------------")
         print("| id | ierakstisanas_laiks | izrakstisanas_laiks | istaba | viesis |")
-        print("---------------------------------------------------------------")
+        print("--------------------------------------------------------------------")
         for date in visas_uzturesanas:
             print("|", date["id"], "|", date["ierakstisanas_laiks"], "|", date["izrakstisanas_laiks"], "|", date["istaba"], "|",
                   date["viesis"])
@@ -251,9 +251,9 @@ def update_info(izvele):
         table_name = "Istaba"
         visas_istabas = get_all_data(table_name)
         connection = sqlite3.connect('viesnica.db')
-        print("--------------------------------------------")
+        print("-------------------------------------------------")
         print("| id | numurs | izmers | is_luxury | kapacitate |")
-        print("--------------------------------------------")
+        print("-------------------------------------------------")
         for istaba in visas_istabas:
             print("|", istaba["id"], "|", istaba["numurs"], "|", istaba["izmers"], "|", istaba["is_luxury"], "|",
                   istaba["kapacitate"])
@@ -291,3 +291,130 @@ def update_info(izvele):
                 cur = con.cursor()
                 cur.execute("UPDATE Istaba SET kapacitate = '{kapacitate}' WHERE id = '{id}'".format(kapacitate = kapacitate, id = id))
             con.close()
+    if izvele == 4:
+        table_name = "Students"
+        visi_studenti = get_all_data(table_name)
+        connection = sqlite3.connect('viesnica.db')
+        print("--------------------------")
+        print("| id | pers_kods | kurss |")
+        print("--------------------------")
+        for studenti in visi_studenti:
+            print("|", studenti["id"], "|", studenti["pers_kods"], "|", studenti["kurss"])
+        print("Please write id:")
+        id = int(input())
+        print("""      
+            Choose what you want to update: 
+            1.Pers_kods
+            2.kurss
+            """)
+        izvele4 = int(input())
+        if izvele4 == 1:
+            pers_kods = input("Enter new personas kodu:")
+            with connection as con:
+                cur = con.cursor()
+                cur.execute("UPDATE Students SET pers_kods= '{pers_kods}' WHERE id = '{id}'".format(pers_kods=pers_kods, id=id))
+            con.close()
+        else:
+            kurss = input("Enter new kursu:")
+            with connection as con:
+                cur = con.cursor()
+                cur.execute("UPDATE Students SET kurss= '{kurss}' WHERE id = '{id}'".format(kurss = kurss, id=id))
+            con.close()
+
+
+def insert_data(izvele):
+    if izvele == 1:
+        start_date = input("Enter start date:")
+        end_date = input("Enter end date:")
+        istabaid = input("Enter room id:")
+        viesisid = input("Enter guest id:")
+        with connection as con:
+            cur = con.cursor()
+            cur.execute("INSERT INTO Uzturesanas(ierakstisanas_laiks, izrakstisanas_laiks, istaba, viesis) VALUES (?,?,?,?)", (start_date, end_date, istabaid, viesisid))
+        con.close()
+    elif izvele == 2:
+        numurs = input("Enter room nr:")
+        izmers = input("Enter the room size:")
+        is_luxury = input("Enter is the room luxury(0 = no, 1 = yes:)")
+        kapacitate = input("Enter what is the room capacity:")
+        with connection as con:
+            cur = con.cursor()
+            cur.execute("INSERT INTO Istaba(numurs, izmers, is_luxury, kapacitate) VALUES (?,?,?,?)", (numurs, izmers, is_luxury, kapacitate))
+        con.close()
+    elif izvele == 3:
+        pers_kods = input("Enter students personas kodu:")
+        kurss = input("Enter students course:")
+        with connection as con:
+            cur = con.cursor()
+            cur.execute("INSERT INTO Students(pers_kods, kurss) VALUES (?,?)", (pers_kods, kurss))
+        con.close()
+    else:
+        vards = input("Enter name:")
+        uzvards = input("Enter last name:")
+        tel_nr = input("Enter phone number:")
+        students = input("Enter student id:")
+        with connection as con:
+            cur = con.cursor()
+            cur.execute("INSERT INTO Viesis(vards, uzvards, tel_nr, studentsID) VALUES (?,?,?,?)", (vards, uzvards, tel_nr, students))
+
+def delete_data(izvele):
+    if izvele == 1:
+        table_name = "Uzturesanas"
+        visas_uzturesanas = get_all_data(table_name)
+        connection = sqlite3.connect('viesnica.db')
+        print("--------------------------------------------------------------------")
+        print("| id | ierakstisanas_laiks | izrakstisanas_laiks | istaba | viesis |")
+        print("--------------------------------------------------------------------")
+        for date in visas_uzturesanas:
+            print("|", date["id"], "|", date["ierakstisanas_laiks"], "|", date["izrakstisanas_laiks"], "|",
+                  date["istaba"], "|",
+                  date["viesis"])
+        print("Please enter id:")
+        id = int(input())
+        with connection as con:
+            cur = con.cursor()
+            cur.execute("DELETE FROM Uzturesanas WHERE id = '{id}'".format(id = id))
+    elif izvele == 2:
+        table_name = "Istaba"
+        visas_istabas = get_all_data(table_name)
+        connection = sqlite3.connect('viesnica.db')
+        print("-------------------------------------------------")
+        print("| id | numurs | izmers | is_luxury | kapacitate |")
+        print("-------------------------------------------------")
+        for istaba in visas_istabas:
+            print("|", istaba["id"], "|", istaba["numurs"], "|", istaba["izmers"], "|", istaba["is_luxury"], "|",
+                  istaba["kapacitate"])
+        print("Please enter id:")
+        id = int(input())
+        with connection as con:
+            cur = con.cursor()
+            cur.execute("DELETE FROM Istaba WHERE id = '{id}'".format(id = id))
+    elif izvele == 3:
+        table_name = "Students"
+        visi_studenti = get_all_data(table_name)
+        connection = sqlite3.connect('viesnica.db')
+        print("--------------------------")
+        print("| id | pers_kods | kurss |")
+        print("--------------------------")
+        for studenti in visi_studenti:
+            print("|", studenti["id"], "|", studenti["pers_kods"], "|", studenti["kurss"])
+        print("Please enter id:")
+        id = int(input())
+        with connection as con:
+            cur = con.cursor()
+            cur.execute("DELETE FROM Students WHERE id = '{id}'".format(id=id))
+    else:
+        table_name = "Viesis"
+        visi_viesi = get_all_data(table_name)
+        connection = sqlite3.connect('viesnica.db')
+        print("---------------------------------------------")
+        print("| id | vards | uzvards | tel_nr| studentsID |")
+        print("---------------------------------------------")
+        for viesi in visi_viesi:
+            print("|", viesi["id"], "|", viesi["vards"], "|", viesi["uzvards"], "|", viesi["tel_nr"], "|",
+                  viesi["studentsID"])
+        print("Please write id:")
+        id = int(input())
+        with connection as con:
+            cur = con.cursor()
+            cur.execute("DELETE FROM Viesis WHERE id = '{id}'".format(id=id))
